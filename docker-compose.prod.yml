@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    extends:
+      file: docker-compose.yml
+      service: frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - NODE_ENV=production
+    restart: always
+    networks:
+      - frontend-network
+
+  backend:
+    extends:
+      file: docker-compose.yml
+      service: backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=${PROD_DB_HOST}
+      - DB_USER=${PROD_DB_USER}
+      - DB_PASSWORD=${PROD_DB_PASSWORD}
+      - DB_NAME=${PROD_DB_NAME}
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - frontend-network
+      - database-network
+
+  mysql:
+    extends:
+      file: docker-compose.yml
+      service: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PROD_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${PROD_MYSQL_DATABASE}
+      - MYSQL_USER=${PROD_MYSQL_USER}
+      - MYSQL_PASSWORD=${PROD_MYSQL_PASSWORD}
+    restart: always
+    networks:
+      - database-network
+
+networks:
+  frontend-network:
+    driver: bridge
+  database-network:
+    driver: bridge

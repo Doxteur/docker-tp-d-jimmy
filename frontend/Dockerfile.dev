@@ -1,0 +1,13 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+# On ne copie pas les fichiers source car ils seront montés en volume
+# pour le hot-reload
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]

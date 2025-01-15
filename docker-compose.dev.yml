@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_ENV=development
+    extends:
+      file: docker-compose.yml
+      service: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - tp-network
+
+  backend:
+    extends:
+      file: docker-compose.yml
+      service: backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=${DEV_DB_HOST}
+      - DB_USER=${DEV_DB_USER}
+      - DB_PASSWORD=${DEV_DB_PASSWORD}
+      - DB_NAME=${DEV_DB_NAME}
+    networks:
+      - tp-network
+    depends_on:
+      - mailhog
+
+  mysql:
+    extends:
+      file: docker-compose.yml
+      service: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DEV_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DEV_MYSQL_DATABASE}
+      - MYSQL_USER=${DEV_MYSQL_USER}
+      - MYSQL_PASSWORD=${DEV_MYSQL_PASSWORD}
+      - MYSQL_ROOT_HOST=%
+    networks:
+      - tp-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - tp-network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - tp-network
+
+# Définition du réseau avec le nouveau nom
+networks:
+  tp-network:
+    driver: bridge

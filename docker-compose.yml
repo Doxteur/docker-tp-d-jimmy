@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    user: mysql
+    volumes:
+      - tp_docker_sql:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_HOST=%
+
+volumes:
+  tp_docker_sql:
+    name: tp_docker_sql
+    driver: local
+
