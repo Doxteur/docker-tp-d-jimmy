@@ -13,7 +13,7 @@
 - [Architecture](#architecture)
 
 ## 🔍 Vue d'ensemble
-Description de votre application et de son objectif principal.
+TP Docker
 
 ## 🌍 Environnements
 
@@ -26,10 +26,10 @@ Description de votre application et de son objectif principal.
 - Variables d'environnement de développement
 
 ### Production
-- Images optimisées avec code embarqué
+- Images optimisées multi-stage
 - Configuration des logs
 - Haute disponibilité (restart: always)
-- Variables d'environnement sécurisées
+- Réseaux isolés
 
 ## ⚙️ Prérequis
 - Docker
